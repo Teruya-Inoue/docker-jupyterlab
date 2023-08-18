@@ -2,8 +2,8 @@ version: '3'
 services:
   jupyterlab:
     build: .
-    image: jupyterlab-test-img
-    container_name: jupyterlab-test
+    image: jupyterlab-image
+    container_name: jupyterlab
     working_dir: /work
     volumes:
       - ./work:/work

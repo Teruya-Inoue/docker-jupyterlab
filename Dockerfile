@@ -1,5 +1,9 @@
-FROM python:3
+FROM nvidia/cuda:11.0-base-ubuntu20.04
 
-RUN apt-get update
-RUN pip install --upgrade pip
-RUN python -m pip install jupyterlab
+RUN apt-get update && apt-get install -y \
+    python3 \
+    python3-pip \
+    wget \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN pip3 install jupyterlab torch torchvision
