@@ -16,6 +16,7 @@ RUN apt-get update \
 RUN pip3 install tensorflow matplotlib scikit-learn
 RUN pip3 install pandas
 RUN pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+RUN pip3 install markupsafe==2.0.1
 
 # Jupyter notebook hashed password
 ## $ python3
