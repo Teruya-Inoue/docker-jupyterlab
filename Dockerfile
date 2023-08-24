@@ -9,4 +9,4 @@ RUN apt-get update && apt-get -y upgrade
 RUN apt install -y curl python3 python3-distutils
 RUN curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py && python3 get-pip.py
 
-RUN pip install -r requirements.txt
+RUN pip install -r /tmp/requirements.txt
