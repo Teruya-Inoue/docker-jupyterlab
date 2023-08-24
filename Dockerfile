@@ -1,12 +1,57 @@
-FROM nvidia/cuda:11.2.2-cudnn8-devel-ubuntu20.04
+FROM nvidia/cuda:11.8.0-base-ubuntu20.04
+ARG DEBIAN_FRONTEND=noninteractive
+ARG DEBCONF_NOWARNINGS=yes
 
 USER root
 
-COPY ./requirements.txt /tmp
-WORKDIR /code
+# Install jupyter notebook
+RUN apt-get update \
+ && apt-get -y upgrade \
+ && apt-get -y --no-install-recommends install jupyter-notebook \
+ && apt-get -y --no-install-recommends install python3-pip \
+ && apt-get -y --no-install-recommends install cuda-11-8 \
+ && apt-get -y --no-install-recommends install libcudnn8
 
-RUN apt-get update && apt-get -y upgrade
-RUN apt install -y curl python3 python3-distutils
-RUN curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py && python3 get-pip.py
+# Install matplotlib, tensorflow and sklearn
+RUN pip3 install tensorflow matplotlib scikit-learn
+RUN pip3 install pandas
+RUN pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 
-RUN pip install -r /tmp/requirements.txt
+# Jupyter notebook hashed password
+## $ python3
+## >>> from notebook.auth import passwd
+## >>> passwd()
+#
+# or enter this docker container,
+#
+# $ docker run --rm -it nvidia_docker_base
+# 
+# run the following script in the container,
+#
+# $ python3 scripts/pass.py
+
+ARG JUPYTER_PASSWD=''
+
+# User name
+ARG NB_USER='jupyter'
+
+# Add user
+ARG NB_UID="1000"
+RUN useradd -m -s /bin/bash -N -u $NB_UID $NB_USER
+
+USER $NB_UID
+WORKDIR /home/$NB_USER
+
+# Copy the scripts for hash password and notebook server config.
+COPY ./scripts /home/$NB_USER/scripts
+
+# Generate a notebook server config
+RUN jupyter notebook -y --generate-config
+RUN ./scripts/notebook_config.sh $JUPYTER_PASSWD
+
+# working directory
+RUN mkdir work
+WORKDIR /home/$NB_USER/work
+
+# Port
+EXPOSE 8888
